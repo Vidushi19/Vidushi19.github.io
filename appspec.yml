@@ -1,0 +1,26 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /webapp/CloudAssignment2/build/libs/CloudAssignment2-0.0.1-SNAPSHOT.war
+    destination: /home/centos
+  - source: infrastructure/aws/codedeploy/cloudwatch-config.json
+    destination: /home/centos
+
+hooks:
+  ApplicationStop:
+   - location: ./infrastructure/aws/codedeploy/appStop.sh
+     timeout: 180
+     runas: centos
+  BeforeInstall:
+   - location: ./infrastructure/aws/codedeploy/beforeInstall.sh
+     timeout: 180
+     runas: centos
+  AfterInstall:
+   - location: ./infrastructure/aws/codedeploy/afterInstall.sh
+     timeout: 180
+     runas: centos
+  ApplicationStart:
+   - location: ./infrastructure/aws/codedeploy/appStart.sh
+     timeout: 1500
+     runas: centos
