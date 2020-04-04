@@ -7,7 +7,7 @@ This repository is designed for the showcasing the SpringBoot Web Application th
 Framework - SpringBoot || 
 Performance Testing - JMeter || 
 Library - Gradle || 
-Unit Test - JUnit || 
+Unit Test - JUnit
 
 ### Cloud PaaS Scripting
 Terraform provided by HashiCorp : https://www.terraform.io/docs/providers/aws/index.html 
