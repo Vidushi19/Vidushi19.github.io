@@ -16,4 +16,6 @@ Terraform provided by HashiCorp : https://www.terraform.io/docs/providers/aws/in
  || Shell scripts to start/stop the application on server
  || YML - to run the shell scripts step by step and define runtime for each step
  
+ Used CircleCI in integration with GitHub for CI/CD.
+ 
  This represents IaaS and SaaS aspects of Amazon Web Services.
