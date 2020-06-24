@@ -1,0 +1,54 @@
+version: 2
+jobs:
+  build:
+  branches:
+      only:
+        - Assignment8
+    docker:
+      - image: circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - run:
+          name: Install Package requirements
+          command: |
+            sudo apt-get install epel-release && sudo apt-get install statsd
+            sudo apt-get update && sudo apt-get install wget zip unzip -y
+            sudo apt-get install -y python3-pip
+            sudo pip3 install awscli
+      - run:
+          name: Build WAR
+          command: |
+            pwd
+            ls -al
+            cd webapp/CloudAssignment2
+            rm -rf build
+            chmod +x gradlew
+            ./gradlew clean build
+            cd ../..
+      - run:
+          name: Build Deployment Artifacts
+          command: |
+            echo "Current build number - ${CIRCLE_BUILD_NUM}"
+            pwd
+            ls -al
+            mkdir artifacts
+            chmod 777 artifacts
+            zip -r csye6225-webapp-${CIRCLE_BUILD_NUM}.zip webapp/CloudAssignment2/build/libs/CloudAssignment2-0.0.1-SNAPSHOT.war appspec.yml infrastructure/aws/codedeploy/cloudwatch-config.json infrastructure/aws/codedeploy/*.sh 
+            zip -r csye6225-webapp-${CIRCLE_BUILD_NUM}.zip webapp/CloudAssignment2/build/libs/CloudAssignment2-0.0.1-SNAPSHOT.war infrastructure/aws/codedeploy/*.sh *.yml infrastructure/aws/codedeploy/*.json
+            pwd
+            ls -al
+            chmod 777 csye6225-webapp-${CIRCLE_BUILD_NUM}.zip
+            sudo mv csye6225-webapp-${CIRCLE_BUILD_NUM}.zip artifacts/
+            cd artifacts    
+            ls -al 
+      - run:
+          name: Checking AWS cli credentials
+          command: aws configure list
+      - run:
+          name: Upload ZIP to S3 bucket
+          command: aws s3 cp artifacts/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip s3://codedeploy.${DOMAIN_NAME}/
+          command: aws s3 cp artifacts/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip s3://${CODEDEPLOY_S3BUCKET}/csye6225-webapp-${CIRCLE_BUILD_NUM}.zip
+      - run:
+          name: Create Deployment
+          command: aws deploy create-deployment --application-name csye6225-webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name csye6225-webapp-deployment --description "CSYE6225 - Codedeploy" --region=${AWS_REGION} --s3-location bucket=codedeploy.${DOMAIN_NAME},bundleType=zip,key=csye6225-webapp-${CIRCLE_BUILD_NUM}.zip
+
